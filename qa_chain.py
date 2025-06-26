@@ -1,9 +1,10 @@
 import os
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
+from chromadb.config import Settings
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 PROMPT_TEMPLATE_EN = """
 You are a legal assistant specializing in the Bharatiya Sakshya Adhiniyam, 2023.
@@ -53,7 +54,16 @@ def get_qa_chain(lang="en", output_lang="en"):
     prompt_template = PROMPTS[output_lang]
 
     embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
-    vectordb = Chroma(persist_directory=index_path, embedding_function=embeddings)
+    settings = Settings(
+    chroma_db_impl="duckdb+parquet",
+    persist_directory=index_path
+)
+
+    vectordb = Chroma(
+    persist_directory=index_path,
+    embedding_function=embeddings,
+    client_settings=settings
+)
     retriever = vectordb.as_retriever()
 
     prompt = PromptTemplate(

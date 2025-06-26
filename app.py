@@ -1,13 +1,11 @@
 import streamlit as st
 from qa_chain import get_qa_chain
 from langdetect import detect
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 st.set_page_config(page_title="Bharatiya Sakshya Adhiniyam Assistant")
 st.title("Bharatiya Sakshya Adhiniyam, 2023 – Legal Assistant")
 st.write("Ask any question about the law. All answers are based strictly on the official document.")
-
-translator = Translator()
 
 # Language selection
 col1, col2 = st.columns(2)
@@ -28,11 +26,13 @@ def detect_and_translate_question(q, context_lang):
     # If context_lang is 'hi' and detected is 'en', translate to Hindi
     if context_lang == 'hi' and detected == 'en':
         # Try to translate to Hindi
-        translated = translator.translate(q, src='en', dest='hi').text
+        translator = GoogleTranslator(source='en', target='hi')
+        translated = translator.translate(q)
         return translated
     elif context_lang == 'en' and detected == 'hi':
         # Translate to English
-        translated = translator.translate(q, src='hi', dest='en').text
+        translator = GoogleTranslator(source='hi', target='en')
+        translated = translator.translate(q)
         return translated
     else:
         return q
@@ -40,9 +40,11 @@ def detect_and_translate_question(q, context_lang):
 def translate_answer(ans, output_lang):
     # If output_lang is 'hi', translate to Hindi; if 'en', to English
     if output_lang == 'hi':
-        return translator.translate(ans, dest='hi').text
+        translator = GoogleTranslator(target='hi')
+        return translator.translate(ans)
     elif output_lang == 'en':
-        return translator.translate(ans, dest='en').text
+        translator = GoogleTranslator(target='en')
+        return translator.translate(ans)
     else:
         return ans
 
